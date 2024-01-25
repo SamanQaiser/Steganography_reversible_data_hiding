@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block pagetitle %}
+   Home
+{% endblock %}
+
+{% block head %}
+   <style>
+      body {
+         background-image: linear-gradient(to right,#000000, #213183);
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+      }
+
+      .container {
+         max-width: 600px;
+         margin: 50px auto;
+         padding: 20px;
+         background-color: #fff;
+         border-radius: 5px;
+         box-shadow: 2px -3px 23px 4px rgba(255, 210, 31, 0.663);
+      }
+
+      h1 {
+         text-align: center;
+         color: #ad2323;   
+      }
+
+      .success-message {
+         background-color: #dff0d8;
+         color: #3c763d;
+         padding: 10px;
+         margin-bottom: 20px;
+         border-radius: 5px;
+      }
+
+      .error-message {
+         background-color: #f2dede;
+         color: #a94442;
+         padding: 10px;
+         margin-bottom: 20px;
+         border-radius: 5px;
+      }
+
+      form {
+         margin-bottom: 20px;
+      }
+
+      form input[type="text"],
+      form input[type="password"] {
+         width: 95%;
+         padding: 10px;
+         margin-bottom: 10px;
+         border-radius: 3px;
+         border: 1px solid #ccc;
+      }
+
+      form button[type="submit"] {
+         display: block;
+         width: 30%;
+         padding: 10px;
+         border-radius: 3px;
+         align-items: center;
+         border: none;
+         align-content: center;
+         margin: auto;
+         background-color: #4CAF50;
+         color: #fff;
+         cursor: pointer;
+      }
+
+      form button[type="submit"]:hover {
+         background-color: #3d8740;
+      }
+   </style>
+{% endblock %}
+
+{% block body %}
+   <div class="container sha">
+      {% if success %}
+         <div class="success-message">
+            Success: {{ success }}
+         </div>
+      {% endif %}
+      
+      <h1>Welcome to the home page.</h1>
+   
+      <form action="{{ signupurl }}" method="POST">
+         { csrf_token }
+         <input type="text" placeholder="Name" name="name">
+         <input type="text" placeholder="Username" name="username">
+         <input type="password" placeholder="Password" name="password">
+         <button type="submit">Sign Up</button>
+      </form>
+   
+      <form action="{{ loginurl }}" method="POST">
+         { csrf_token }
+         <input type="text" placeholder="Username" name="username">
+         <input type="password" placeholder="Password" name="password">
+         <button type="submit">Login</button>
+      </form>
+   
+      {% if error %}
+         <div class="error-message">
+            Error: {{ error }}
+         </div>
+      {% endif %}
+   </div>
+      
+{% endblock %}

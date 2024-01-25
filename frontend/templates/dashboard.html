@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block pagetitle %}
+   Dashboard
+{% endblock %}
+
+{% block head %}
+
+   <style>
+      body {
+         /* background-color: #f2f2f2; */
+         background-image: linear-gradient(to right,#000000, #213183);
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+      }
+
+      .container {
+         max-width: 800px;
+         margin: 50px auto;
+         box-shadow: 2px -3px 23px 4px rgba(187, 142, 7, 0.663);
+         padding: 20px;
+         background-color: #fff;
+         border-radius: 10px;
+      }
+
+      h1 {
+         text-align: center;
+         color: #333;
+      }
+
+      .success-message {
+         background-color: #dff0d8;
+         color: #3c763d;
+         padding: 10px;
+         margin-bottom: 20px;
+         border-radius: 5px;
+      }
+
+      .error-message {
+         background-color: #f2dede;
+         color: #a94442;
+         padding: 10px;
+         margin-bottom: 20px;
+         border-radius: 5px;
+      }
+
+      form {
+         margin-bottom: 20px;
+      }
+
+      form input[type="text"],
+      form input[type="password"],
+      form input[type="file"] {
+         width: 9%;
+         padding: 10px;
+         margin-bottom: 10px;
+         border-radius: 3px;
+         border: 1px solid #ccc;
+      }
+
+      form button[type="submit"] {
+         display: block;
+         width: 100%;
+         padding: 10px;
+         border-radius: 3px;
+         border: none;
+         background-color: #4CAF50;
+         color: #fff;
+         cursor: pointer;
+         transition: background-color 0.3s;
+      }
+
+      form button[type="submit"]:hover {
+         background-color: #0a510c;
+      }
+   
+      .stored-images {
+         margin-top: 40px;
+      }
+
+      .stored-images p {
+         position: relative;
+         margin-bottom: 30px;
+      }
+
+      .stored-images img {
+         max-height: 20%;
+         max-width: 20%;
+         border-radius:10%;
+         transition: transform 0.3s;
+      }
+
+      .stored-images form {
+         display: inline-block;
+         margin-right: 10px;
+      }
+
+      .stored-images button {
+         background-color: #ff5f5f;
+         color: #fff;
+         transition: background-color 0.3s;
+         border: none;
+         padding: 5px 10px;
+         border-radius: 3px;
+         cursor: pointer;
+      }
+
+      .stored-images button:hover {
+         background-color: #ff4545;
+      }
+
+      .stored-images form:nth-last-child(2) {
+         margin-right: 20px;
+      }
+
+      .no-images {
+         text-align: center;
+         color: #777;
+         font-style: italic;
+      }
+      
+      .stored-images img:hover {
+         transform: translateX(-5px) translateY(-5px);
+     
+      }
+
+
+      .stored-images img {
+         transition: transform 0.3s;
+      }
+
+      @keyframes fadeIn {
+         from {
+            opacity: 0;
+         }
+         to {
+            opacity: 1;
+         }
+      }
+
+      .fade-in {
+         animation: fadeIn 0.5s;
+      }
+
+      @keyframes slideInFromLeft {
+         from {
+            transform: translateX(-100%);
+         }
+         to {
+            transform: translateX(0);
+         }
+      }
+
+      .slide-in-from-left {
+         animation: slideInFromLeft 0.5s;
+      }
+
+      @keyframes slideInFromRight {
+         from {
+            transform: translateX(100%);
+         }
+         to {
+            transform: translateX(0);
+         }
+      }
+
+      .slide-in-from-right {
+         animation: slideInFromRight 0.5s;
+      }
+   </style>
+
+{% endblock %}
+
+{% block body %}
+   <div class="container">
+      {% include 'usernavbar.html' %}
+   
+      {% if success %}
+         <div class="success-message fade-in">
+            Success: {{ success }}
+         </div>
+      {% endif %}
+   
+      <h1>Welcome to the dashboard page.</h1>
+   
+      {% if error %}
+         <div class="error-message fade-in">
+            Error: {{ error }}
+         </div>
+      {% endif %}
+   
+      <div class="add-new-image slide-in-from-left">
+         <h2>Add new image:</h2>
+   
+         <form action="{{ addimageurl }}" enctype="multipart/form-data" method="POST">
+            { csrf_token }
+            <input type="hidden" name="imageindex" value="{{ images|length }}">
+            <input type="text" placeholder="Data to embed in image" name="data">
+            <b> 
+               
+            </b>
+            <input type="file" name="image">
+            <br><br>
+            <button type="submit">Upload, Encrypt and Embed &gt;&gt;</button>
+         </form>
+      </div>
+   
+      <div class="centerItem">
+         <div class="stored-images slide-in-from-right">
+            <h2>Stored images:</h2>
+            {% if images %}
+               {% for image in images %}
+                  <p class="sha" imageid="{{ image.get('imageid') }}">
+                     [{{ loop.index0 }}]<br>
+                     <br><br>
+                     <img src="/images/{{ image.get('token') }}.png" alt="Image {{ loop.index0 }}">
+                     <br>
+                     <br>
+                     {% if image.get('is_decrypted') %}
+                        Extracted data: '{{ image.get('data') }}'
+                        <br>
+                        <form action="{{ hideimageurl }}" method="POST">
+                           { csrf_token }
+                           <input type="hidden" name="imageid" value="{{ image.get('imageid') }}">
+                           <input type="hidden" name="imageindex" value="{{ loop.index }}">
+                           <button class="hide-button" type="submit">Hide this image [{{ loop.index0 }}]</button>
+                        </form>
+                     {% else %}
+                        <form action="{{ decryptimageurl }}" method="POST">
+                           { csrf_token }
+                           <input type="hidden" name="imageid" value="{{ image.get('imageid') }}">
+                           <input type="hidden" name="imageindex" value="{{ loop.index }}">
+                           <button class="decrypt-button" type="submit">Decrypt this image [{{ loop.index0 }}]</button>
+                        </form>
+                     {% endif %}
+                     <form action="{{ deleteimageurl }}" method="POST">
+                        { csrf_token }
+                        <input type="hidden" name="imageid" value="{{ image.get('imageid') }}">
+                        <input type="hidden" name="imageindex" value="{{ loop.index }}">
+                        <button class="delete-button" type="submit">Delete this image [{{ loop.index0 }}]</button>
+                     </form>
+                  </p>
+               {% endfor %}
+            {% else %}
+               <p class="no-images">Oops! No images yet!</p>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+{% endblock %}
